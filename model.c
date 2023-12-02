@@ -329,9 +329,16 @@ double evaluate_formula(cell *current, char *formula) {
             }
         }
 
-        // Else, token is a number, add to result
-        else {
+        // Else if token is a number, add to result
+        else if(isdigit(token)){
             result += atof(token);
+        }
+
+        //Else, token is not valid, set error
+        else{
+            set_error_and_update(current, "ERROR: invalid cell reference");
+            current->state = UNVISITED;
+            return NAN;
         }
 
         // Get the next token in the formula
