@@ -510,24 +510,9 @@ char *get_textual_value(ROW row, COL col) {
     // Find cell
     cell *current = find_cell(row, col);
 
-    // If cell exists
+    // If cell exists return the original input
     if (current != NULL) {
-        /* // If cell type is NUMBER, return the computed value as a string
-        if (current->type == NUMBER) {
-            char *value = malloc(50 * sizeof(char));
-            snprintf(value, 50, "%.1f", current->content.number_value);
-            return value;
-        }*/
-
-        // If cell type is TEXT, return the text value
-        if (current->type == TEXT) {
-            return strdup(current->content.text_value);
-        }
-
-        // Else, return the original input string
-        else {
             return strdup(current->original_input);
-        }
     }
 
     // Else, cell does not exist
@@ -535,7 +520,6 @@ char *get_textual_value(ROW row, COL col) {
         printf("Cell (%d, %d) does not exist\n", row, col);
         return NULL;
     }
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////// MODEL FUNCTIONS /////////////////////////////////////////////////////////////////////////////////////////////////
