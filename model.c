@@ -57,7 +57,7 @@ typedef struct node {
 
 } node;
 
-node *spreadsheet[MAX_SIZE];
+node *spreadsheet[HASH_SIZE];
 
 
 /////////////////////////////////////////////////// HELPER FUNCTIONS ///////////////////////////////////////////////////
@@ -73,7 +73,7 @@ unsigned long hash(char *str) {
         hash = ((hash << 5) + hash) + c;
 
     // Return modulus to fit in the table
-    return hash % MAX_SIZE;
+    return hash % HASH_SIZE;
 }
 
 //// ERROR SET FUNCTION
@@ -191,6 +191,8 @@ void clear_cell(ROW row, COL col) {
     if (current->original_input != NULL) {
         free(current->original_input);
     }
+
+    update_cell_display(row, col, "");
 }
 
 //// FREEING A CELL FUNCTION
@@ -528,7 +530,7 @@ char *get_textual_value(ROW row, COL col) {
 
 //// SPREADSHEET INITIALIZATION FUNCTION
 void model_init() {
-    for (int i = 0; i < MAX_SIZE; i++) {
+    for (int i = 0; i < HASH_SIZE; i++) {
         spreadsheet[i] = NULL;
     }
 }
@@ -543,6 +545,5 @@ void model_destroy() {
         }
     }
 }
-
 
 
