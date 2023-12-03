@@ -144,27 +144,6 @@ void add_dependent(cell *current, cell *dependent) {
     current->dependents[current->dependents_count++] = dependent;
 }
 
-//// FREE CELL FUNCTION
-void free_cell(cell *current) {
-    //Check for types, free the appropriate values
-    if (current->type == FORMULA) {
-        free(current->formula);
-    }
-
-    else if (current->type == TEXT || current->type == ERROR) {
-        free(current->content.text_value);
-    }
-
-    // Free dependant array
-    free(current->dependents);
-
-    // Free original input if valid
-    if (current->original_input != NULL) {
-        free(current->original_input);
-    }
-
-}
-
 //// FIND A CELL FUNCTION
 cell *find_cell(ROW row, COL col) {
     // Store key, format key, compute hash
@@ -187,8 +166,35 @@ cell *find_cell(ROW row, COL col) {
     return NULL;
 }
 
-//// CLEARING A CELL FUNCTION
+//// CLEAR CELL FUNCTION
 void clear_cell(ROW row, COL col) {
+    // Find cell position
+    cell *current = find_cell(row, col);
+
+    //Check cell type and free corresponding data memory
+    if (current->type == FORMULA) {
+        free(current->formula);
+    }
+
+    else if (current->type == TEXT || current->type == ERROR) {
+        free(current->content.text_value);
+    }
+
+    else{
+        current->content.number_value = 0;
+    }
+
+    // Free dependant array
+    free(current->dependents);
+
+    // Free original input if valid
+    if (current->original_input != NULL) {
+        free(current->original_input);
+    }
+}
+
+//// FREEING A CELL FUNCTION
+void free_cell(ROW row, COL col) {
     // Create key
     char key[50];
     sprintf(key, "%d,%d", row, col);
@@ -204,25 +210,18 @@ void clear_cell(ROW row, COL col) {
     while (current != NULL) {
         // If the key of the current node matches the key of the cell
         if (strcmp(current->key, key) == 0) {
-            // If the current node is the first node remove it
+            // If the current node is the last node remove it
             if (prev == NULL) {
                 spreadsheet[index] = current->next;
             }
 
-            // Else, set the previous node to point to the next node
+                // Else, set the previous node to point to the next node
             else {
                 prev->next = current->next;
             }
 
-            // If cell is a FORMULA, free memory
-            if (current->value.type == FORMULA) {
-                free(current->value.formula);
-            }
-
-            // Else if the cell is TEXT or ERROR, free memory
-            else if (current->value.type == TEXT || current->value.type == ERROR) {
-                free(current->value.content.text_value);
-            }
+            // Clear all the values from the cell
+            clear_cell(current->value.row, current->value.col);
 
             // Free node memory, update cell display
             free(current);
@@ -234,6 +233,8 @@ void clear_cell(ROW row, COL col) {
         prev = current;
         current = current->next;
     }
+
+    return;
 }
 
 //// EVALUATE A FORMULA IN A CELL FUNCTION
@@ -537,8 +538,7 @@ void model_destroy() {
     for (int i = 0; i < HASH_SIZE; i++) {
         for (node *current = spreadsheet[i]; current != NULL; ) {
             node *next = current->next;
-            free_cell(&current->value);
-            free(current);
+            free_cell(current->value.row, current->value.col);
             current = next;
         }
     }
